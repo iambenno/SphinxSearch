@@ -14,9 +14,22 @@ Installation
 ----------------------------------
 You will need to install sphinx (http://www.sphinxsearch.com/), I am testing with 0.9.9-release.
 
+Limited configuration can be done through the Vanilla/Garden Dashboard (Plugins -> SphinxSearch -> Settings)
+
 A sample sphinx config file is provided (sphinx.conf.sample)
 
-Limited configuration can be done through the Vanilla/Garden Dashboard (Plugins -> SphinxSearch -> Settings)
+I have sphinx installed in: /usr/local/sphinx
+
+Then, the following folder structure:
+
+/home/mysite/public_html/.......... <-- Vanilla/Garden Install
+
+/home/mysite/sphinx/
+/home/mysite/sphinx/sphinx.conf     <-- Sphinx Config
+
+/home/mysite/sphinx/data/search/    <-- Sphinx Data Files
+/home/mysite/sphinx/data/search/    <-- Sphinx Data Files
+/home/mysite/sphinx/log/            <-- Sphinx Log/PID Files
 
 
 Usage
