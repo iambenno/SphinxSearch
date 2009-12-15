@@ -1,0 +1,261 @@
+#
+# Vanilla/Garden SphinxSearch Sample Configuration File
+#
+
+#############################################################################
+## Data Source Definition
+#############################################################################
+
+source source_garden_search_main
+{
+  type = mysql
+  sql_host = localhost
+  sql_user = username
+  sql_pass = password
+  sql_db = database
+  sql_port = 3306
+  
+  sql_query_pre = \
+    REPLACE INTO GDN_TableType (TableName, PermissionTableName, MainIndexMaxID) \
+      (SELECT tt.TableName, tt.PermissionTableName, MAX(DocumentID) FROM GDN_SearchDocument sd JOIN GDN_TableType tt ON (tt.TableName='Comment'))
+  
+  sql_query_range = SELECT MIN(DocumentID), MAX(DocumentID) FROM GDN_SearchDocument WHERE TableName='Comment'
+  sql_range_step = 5000
+
+  sql_query = \
+    SELECT \
+      sd.DocumentID AS id, \
+      CRC32(sd.TableName) AS TableID, \
+      sd.PrimaryID AS PrimaryID, \
+      sd.PermissionJunctionID AS PermissionJunctionID, \
+      sd.InsertUserID, \
+      UNIX_TIMESTAMP(sd.DateInserted) AS DateInserted, \
+      sd.Title AS OrdinalTitle, \
+      sd.Title AS Title, \
+      c.Body, \
+      0 Deleted \
+    FROM \
+      GDN_SearchDocument sd \
+    JOIN \
+      GDN_Comment c ON (c.CommentID=sd.PrimaryID) \
+    WHERE \
+      sd.DocumentID >= $start AND sd.DocumentID <= $end
+
+  sql_query_post = 
+  sql_query_post_index = REPLACE INTO GDN_TableType (TableName, PermissionTableName, MainIndexMaxID) (SELECT TableName, PermissionTableName, $maxid FROM GDN_TableType WHERE TableName='Comment')
+  
+  sql_query_info = SELECT * FROM GDN_SearchDocument WHERE DocumentID=$id
+  
+  sql_attr_uint = TableID
+  sql_attr_uint = PrimaryID
+  sql_attr_uint = PermissionJunctionID
+  sql_attr_uint = InsertUserID
+  sql_attr_timestamp = DateInserted
+  sql_attr_str2ordinal = OrdinalTitle
+  sql_attr_bool = Deleted
+}
+
+source source_garden_search_delta : source_garden_search_main
+{
+  type = mysql
+  sql_host = localhost
+  sql_user = username
+  sql_pass = password
+  sql_db = database
+  sql_port = 3306
+
+  sql_query_pre = 
+
+  sql_query_range = 
+  sql_range_step = 
+
+  sql_query = \
+    SELECT \
+      sd.DocumentID AS id, \
+      CRC32(sd.TableName) AS TableID, \
+      sd.PrimaryID AS PrimaryID, \
+      sd.PermissionJunctionID AS PermissionJunctionID, \
+      sd.InsertUserID, \
+      UNIX_TIMESTAMP(sd.DateInserted) AS DateInserted, \
+      sd.Title AS OrdinalTitle, \
+      sd.Title AS Title, \
+      c.Body, \
+      0 Deleted \
+    FROM \
+      GDN_SearchDocument sd \
+    JOIN \
+      GDN_Comment c ON (c.CommentID=sd.PrimaryID) \
+    WHERE \
+      sd.DocumentID > (SELECT MainIndexMaxID FROM GDN_TableType WHERE TableName='Comment')
+}
+
+#############################################################################
+## Index Definition
+#############################################################################
+
+index index_garden_search_main
+{
+  path = %%DATAPATH%%/data/search/main
+  source = source_garden_search_main
+  docinfo = extern
+  html_strip = 1
+  morphology = none
+  stopwords = %%DATAPATH%%/sphinx_stopwords.txt
+  min_word_len = 2
+  charset_type = utf-8
+  charset_table = U+FF10..U+FF19->0..9, 0..9, U+FF41..U+FF5A->a..z, U+FF21..U+FF3A->a..z, A..Z->a..z, a..z, U+0149, U+017F, U+0138, U+00DF, U+00FF, U+00C0..U+00D6->U+00E0..U+00F6, U+00E0..U+00F6, U+00D8..U+00DE->U+00F8..U+00FE, U+00F8..U+00FE, U+0100->U+0101, U+0101, U+0102->U+0103, U+0103, U+0104->U+0105, U+0105, U+0106->U+0107, U+0107, U+0108->U+0109, U+0109, U+010A->U+010B, U+010B, U+010C->U+010D, U+010D, U+010E->U+010F, U+010F, U+0110->U+0111, U+0111, U+0112->U+0113, U+0113, U+0114->U+0115, U+0115, U+0116->U+0117, U+0117, U+0118->U+0119, U+0119, U+011A->U+011B, U+011B, U+011C->U+011D, U+011D, U+011E->U+011F, U+011F, U+0130->U+0131, U+0131, U+0132->U+0133, U+0133, U+0134->U+0135, U+0135, U+0136->U+0137, U+0137, U+0139->U+013A, U+013A, U+013B->U+013C, U+013C, U+013D->U+013E, U+013E, U+013F->U+0140, U+0140, U+0141->U+0142, U+0142, U+0143->U+0144, U+0144, U+0145->U+0146, U+0146, U+0147->U+0148, U+0148, U+014A->U+014B, U+014B, U+014C->U+014D, U+014D, U+014E->U+014F, U+014F, U+0150->U+0151, U+0151, U+0152->U+0153, U+0153, U+0154->U+0155, U+0155, U+0156->U+0157, U+0157, U+0158->U+0159, U+0159, U+015A->U+015B, U+015B, U+015C->U+015D, U+015D, U+015E->U+015F, U+015F, U+0160->U+0161, U+0161, U+0162->U+0163, U+0163, U+0164->U+0165, U+0165, U+0166->U+0167, U+0167, U+0168->U+0169, U+0169, U+016A->U+016B, U+016B, U+016C->U+016D, U+016D, U+016E->U+016F, U+016F, U+0170->U+0171, U+0171, U+0172->U+0173, U+0173, U+0174->U+0175, U+0175, U+0176->U+0177, U+0177, U+0178->U+00FF, U+00FF, U+0179->U+017A, U+017A, U+017B->U+017C, U+017C, U+017D->U+017E, U+017E, U+4E00..U+9FFF
+  min_prefix_len = 0
+  min_infix_len = 0
+}
+
+index index_garden_search_delta : index_garden_search_main
+{
+  path = %%DATAPATH%%/sphinx/data/search/delta
+  source = source_garden_search_delta
+}
+
+#############################################################################
+## Indexer Configuration
+#############################################################################
+
+indexer
+{
+  # memory limit, in bytes, kiloytes (16384K) or megabytes (256M)
+  # optional, default is 32M, max is 2047M, recommended is 256M to 1024M
+  mem_limit     = 32M
+
+  # maximum IO calls per second (for I/O throttling)
+  # optional, default is 0 (unlimited)
+  #
+  # max_iops      = 40
+
+  # maximum IO call size, bytes (for I/O throttling)
+  # optional, default is 0 (unlimited)
+  #
+  # max_iosize    = 1048576
+
+  # maximum xmlpipe2 field length, bytes
+  # optional, default is 2M
+  #
+  # max_xmlpipe2_field  = 4M
+
+  # write buffer size, bytes
+  # several (currently up to 4) buffers will be allocated
+  # write buffers are allocated in addition to mem_limit
+  # optional, default is 1M
+  #
+  # write_buffer    = 1M
+}
+
+#############################################################################
+## searchd settings
+#############################################################################
+
+searchd
+{
+  # hostname, port, or hostname:port, or /unix/socket/path to listen on
+  # multi-value, multiple listen points are allowed
+  # optional, default is 0.0.0.0:9312 (listen on all interfaces, port 9312)
+  #
+  # listen        = 127.0.0.1
+  # listen        = 192.168.0.1:9312
+  # listen        = 9312
+  # listen        = /var/run/searchd.sock
+  listen        = 127.0.0.1
+
+  # log file, searchd run info is logged here
+  # optional, default is 'searchd.log'
+  log         = %%DATAPATH%%/log/searchd.log
+
+  # query log file, all search queries are logged here
+  # optional, default is empty (do not log queries)
+  query_log     = %%DATAPATH%%/log/query.log
+
+  # client read timeout, seconds
+  # optional, default is 5
+  read_timeout    = 5
+
+  # request timeout, seconds
+  # optional, default is 5 minutes
+  client_timeout    = 300
+
+  # maximum amount of children to fork (concurrent searches to run)
+  # optional, default is 0 (unlimited)
+  max_children    = 30
+
+  # PID file, searchd process ID file name
+  # mandatory
+  pid_file      = %%DATAPATH%%/log/searchd.pid
+
+  # max amount of matches the daemon ever keeps in RAM, per-index
+  # WARNING, THERE'S ALSO PER-QUERY LIMIT, SEE SetLimits() API CALL
+  # default is 1000 (just like Google)
+  max_matches     = 1000
+
+  # seamless rotate, prevents rotate stalls if precaching huge datasets
+  # optional, default is 1
+  seamless_rotate   = 1
+
+  # whether to forcibly preopen all indexes on startup
+  # optional, default is 0 (do not preopen)
+  preopen_indexes   = 0
+
+  # whether to unlink .old index copies on succesful rotation.
+  # optional, default is 1 (do unlink)
+  unlink_old      = 1
+
+  # attribute updates periodic flush timeout, seconds
+  # updates will be automatically dumped to disk this frequently
+  # optional, default is 0 (disable periodic flush)
+  #
+  # attr_flush_period = 900
+
+
+  # instance-wide ondisk_dict defaults (per-index value take precedence)
+  # optional, default is 0 (precache all dictionaries in RAM)
+  #
+  # ondisk_dict_default = 1
+
+
+  # MVA updates pool size
+  # shared between all instances of searchd, disables attr flushes!
+  # optional, default size is 1M
+  mva_updates_pool  = 1M
+
+  # max allowed network packet size
+  # limits both query packets from clients, and responses from agents
+  # optional, default size is 8M
+  max_packet_size   = 8M
+
+  # crash log path
+  # searchd will (try to) log crashed query to 'crash_log_path.PID' file
+  # optional, default is empty (do not create crash logs)
+  #
+  # crash_log_path    = %%DATAPATH%%/log/crash
+
+  # max allowed per-query filter count
+  # optional, default is 256
+  max_filters     = 256
+
+  # max allowed per-filter values count
+  # optional, default is 4096
+  max_filter_values = 4096
+
+
+  # socket listen queue length
+  # optional, default is 5
+  #
+  # listen_backlog    = 5
+
+
+  # per-keyword read buffer size
+  # optional, default is 256K
+  #
+  # read_buffer     = 256K
+
+
+  # unhinted read size (currently used when reading hits)
+  # optional, default is 32K
+  #
+  # read_unhinted   = 32K
+}
