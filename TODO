@@ -1,0 +1,15 @@
+Todo List
+----------------------------------
+
+- Write crontab scripts for rebuilding delta and main
+
+- I'd like to keep the search "modular" and using SearchDocument to allow other applications/plugins to get 
+  their data indexed, allowing a full site-wide search for those that build/are building a site from scratch
+  using the Vanilla/Garden framework (like me)
+
+- Write import scripts to populate the SearchDocument table after an import from another or earlier forum
+
+- Fix CCS layouts
+
+- Lots more...
+

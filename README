@@ -1,0 +1,35 @@
+Description
+----------------------------------
+Plugin for Vanilla/Garden to enable fulltext search. This is in a very early stage, and if it helps someeone
+great, if it doesnt, I'm sorry... If you have any feedback, suggestions, changes or additions I would be most
+greatful.
+
+
+Misc Notes
+----------------------------------
+This plugin utilises the existing search SearchDocument table for Vanilla/Garden for providing search results.
+
+
+Installation
+----------------------------------
+You will need to install sphinx (http://www.sphinxsearch.com/), I am testing with 0.9.9-release.
+
+A sample sphinx config file is provided (sphinx.conf.sample)
+
+Limited configuration can be done through the Vanilla/Garden Dashboard (Plugins -> SphinxSearch -> Settings)
+
+
+Usage
+----------------------------------
+Install the plugin into Vanilla/Garden, setup your sphinx.conf, you will need to replace %%DATAPATH%% with 
+where ever you are planning on storing your config, log and data files.
+
+Initial and full Index Builds can be done by typing (correct paths to indexer and config file for your setup):
+/usr/local/sphinx/bin/indexer --config /home/mysite/sphinx/sphinx.conf --all
+
+Delta Updates can be done by typing:
+/usr/local/sphinx/bin/indexer --rotate --config /home/mysite/sphinx/sphinx.conf index_garden_search_delta
+
+Searchd can be started by typing:
+/usr/local/sphinx/bin/searchd --config /home/mysite/sphinx/sphinx.conf
+
