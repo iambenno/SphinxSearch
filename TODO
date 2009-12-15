@@ -5,7 +5,9 @@ Todo List
 
 - I'd like to keep the search "modular" and using SearchDocument to allow other applications/plugins to get 
   their data indexed, allowing a full site-wide search for those that build/are building a site from scratch
-  using the Vanilla/Garden framework (like me)
+  using the Vanilla/Garden framework (like me). The only way I can see this being achieved is to use the 
+  xmlpipe2 functionality as for discussions/comments I'd join in the comments table, but if I say had a video
+  review collection that I wanted to index, I'd need to join in that table
 
 - Write import scripts to populate the SearchDocument table after an import from another or earlier forum
 
