@@ -17,7 +17,7 @@ class SphinxModel extends Gdn_SearchModel {
 
   function __construct() {
     if (!class_exists("SphinxClient")) {
-      require_once(PATH_LIBRARY.DS.'vendors'.DS.'sphinx'.DS.'sphinxapi.php');
+      require_once(PATH_PLUGINS.DS.'SphinxSearch'.DS.'sphinxapi.php');
     }
     $this->_SphinxClient = new SphinxClient();
     $this->_SphinxClient->SetServer(Gdn::Config('SphinxSearch.Host'), (int)Gdn::Config('SphinxSearch.Port'));
